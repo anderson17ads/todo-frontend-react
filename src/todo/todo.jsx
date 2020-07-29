@@ -18,13 +18,16 @@ export default class Todo extends Component {
         this.handleRemove = this.handleRemove.bind(this)
         this.handleMarkAsDone = this.handleMarkAsDone.bind(this)
         this.handleMarkAsPedding = this.handleMarkAsPedding.bind(this)
+        this.handleSearch = this.handleSearch.bind(this)
 
         this.refresh()
     }
 
     refresh() {
-        axios.get(`${URL}?sort=createAt`)
-            .then(resp => this.setState({ ...this.state, description: '', list: resp.data }))
+        const description = this.state.description || '' 
+        const search = description ? `&description__regex=/${description}/` : ''
+        axios.get(`${URL}?sort=createAt${search}`)
+            .then(resp => this.setState({ ...this.state, description, list: resp.data }))
     }
 
     handleAdd() {
@@ -52,6 +55,10 @@ export default class Todo extends Component {
             .then(() => this.refresh())
     }
 
+    handleSearch() {
+        this.refresh(this.state.description)
+    }
+
     render() {
         return (
             <div>
@@ -60,7 +67,8 @@ export default class Todo extends Component {
                 <TodoForm
                     description={this.state.description}
                     handleChange={this.handleChange}
-                    handleAdd={this.handleAdd} />
+                    handleAdd={this.handleAdd}
+                    handleSearch={this.handleSearch} />
 
                 <TodoList
                     list={this.state.list}
